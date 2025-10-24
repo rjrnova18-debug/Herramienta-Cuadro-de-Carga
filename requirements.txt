@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+matplotlib
+seaborn
+altair
+fpdf
+fpdf2
+openpyxl
+xlsxwriter
+kaleido
