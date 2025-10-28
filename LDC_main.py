@@ -119,8 +119,57 @@ with tab1:
         st.session_state["tabla_datos"] = pd.DataFrame(columns=columnas).astype({"Item": 'Int64', "Potencia (W)": float})
 
 
-    # ======== CARGA DE ARCHIVO ========
+    # ======== CARGA Y DESCARGA DE ARCHIVO ========
     archivo = st.file_uploader("📂 Cargar archivo CSV o Excel", type=["csv", "xlsx"], label_visibility="collapsed")
+
+    # Creamos 3 columnas para el uploader y los dos botones de descarga
+
+    st.info("A continuación, puedes descargar una plantilla de ejemplo para utilizarla en la carga masiva.")
+
+    col_template_csv, col_template_xlsx = st.columns([1, 1])
+
+    template_csv_content = """Carga,Potencia (W),0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
+        Rack de Servidores,1500,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0
+        Nevera Cocina,350,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+        Proyector Sala,300,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0
+        Aire acondicionado secretaria,3514,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,1
+        Aire acondicionado rectoria,3514,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,1,1
+        Aire acondicionado coordinacion,3514.4,0,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,1,1
+        Motobomba,1491.6,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1
+        Refrigerador,1000,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,0
+        Circuito de ventiladores,5400,1,1,1,1,1,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0
+        Circuito luces LED,1200,0,0,0,0,1,1,1,0,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0,0
+    """
+
+    # 1. Convertir CSV string a DataFrame
+    # Esto es necesario para generar el Excel
+    df_template = pd.read_csv(io.StringIO(template_csv_content))
+    
+    # 2. Generar archivo XLSX en memoria (BytesIO)
+    output_xlsx = io.BytesIO()
+    df_template.to_excel(output_xlsx, index=False)
+    output_xlsx.seek(0)
+
+    with col_template_csv:
+        # --- BOTÓN PARA DESCARGAR PLANTILLA CSV ---
+        st.download_button(
+            "⬇️ Plantilla (CSV)",
+            data=template_csv_content.encode("utf-8"),
+            file_name="plantilla_cuadro_carga.csv",
+            mime="text/csv",
+            use_container_width=True,
+            help="Descarga un archivo CSV de ejemplo con la estructura requerida."
+        )
+    with col_template_xlsx:
+        # --- BOTÓN PARA DESCARGAR PLANTILLA XLSX ---
+        st.download_button(
+            "⬇️ Plantilla (XLSX)",
+            data=output_xlsx.getvalue(),
+            file_name="plantilla_cuadro_carga.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            help="Descarga un archivo Excel de ejemplo con la estructura requerida."
+        )
 
     if archivo is not None:
         try:
@@ -1170,4 +1219,5 @@ with tab2:
         st.markdown("---")
 
         # 5) Botón para imprimir (FUERA del área)
+
         render_print_button("📄 Imprimir / Descargar PDF", delay_ms=800)
