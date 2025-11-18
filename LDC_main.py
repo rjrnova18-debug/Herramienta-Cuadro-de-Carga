@@ -99,15 +99,20 @@ def reindexar_items(df):
 # ---------------------------------------------------------------------------
 with tab1:
     st.header("⚡ Carga y Validación de Datos")
-    st.markdown("Sube o edita tu archivo de consumo eléctrico antes de continuar con el análisis.")
+    #st.markdown("Sube o edita tu archivo de consumo eléctrico antes de continuar con el análisis.")
 
     # ======== INFO GENERAL ========
     st.info(
-        "💡 **Instrucciones:**\n"
-        "1. Sube un archivo en formato **CSV** o **Excel (XLSX)** que contenga las columnas "
-        "`Carga`, `Potencia (W)` y las horas `0` a `23`.\n"
-        "2. Puedes editar directamente los valores en la tabla.\n"
-        "3. Cuando los datos estén correctos, presiona **Validar Datos** para continuar."
+        "##### 💡 Instrucciones – Carga y Preparación de Datos\n\n"
+        "Esta herramienta te permite ingresar y gestionar la información necesaria para construir el **Cuadro de Carga (Load Duration Curve)**.\n\n"
+
+        "###### 📂 Opción 1: Carga masiva (recomendada)\n"
+        "Puedes subir un archivo en formato **CSV** o **Excel (XLSX)** con la estructura requerida.\n"
+        "Tienes disponible una **plantilla descargable** que muestra el formato correcto, incluyendo:\n"
+        "- Nombre de la carga\n"
+        "- Potencia en watts (`Potencia (W)`)\n"
+        "- Columnas de horas de **0 a 23**, donde **1** indica que la carga está activa y **0** que está inactiva.\n\n"
+        "*Nota: si desea ingresar datos de forma manual hagalo desde el siguiente apartado.*"
     )
 
     # ======== VARIABLES GLOBALES ========
@@ -120,11 +125,8 @@ with tab1:
 
 
     # ======== CARGA Y DESCARGA DE ARCHIVO ========
-    archivo = st.file_uploader("📂 Cargar archivo CSV o Excel", type=["csv", "xlsx"], label_visibility="collapsed")
-
     # Creamos 3 columnas para el uploader y los dos botones de descarga
-
-    st.info("A continuación, puedes descargar una plantilla de ejemplo para utilizarla en la carga masiva.")
+    #st.info("Descargar la plantilla de ejemplo para utilizarla en la carga masiva.")
 
     col_template_csv, col_template_xlsx = st.columns([1, 1])
 
@@ -171,6 +173,8 @@ with tab1:
             help="Descarga un archivo Excel de ejemplo con la estructura requerida."
         )
 
+    archivo = st.file_uploader("📂 Cargar archivo CSV o Excel", type=["csv", "xlsx"], label_visibility="collapsed")
+
     if archivo is not None:
         try:
             if archivo.name.endswith(".csv"):
@@ -210,12 +214,19 @@ with tab1:
             st.success("✅ Archivo cargado correctamente.")
         except Exception as e:
             st.error(f"Error al leer el archivo: {e}")
-    else:
-        if st.session_state["tabla_datos"].empty:
-            st.info("Puedes cargar un archivo o comenzar a ingresar datos manualmente.")
+    #else:
+        #if st.session_state["tabla_datos"].empty:
+            #st.info("Puedes cargar un archivo o comenzar a ingresar datos manualmente.")
 
     # ======== INGRESO MANUAL ========
-    st.subheader("✍️ Agregar carga manualmente")
+    #st.subheader("✍️ Agregar carga manualmente")
+    st.info("###### ✍️ Opción 2: Carga manual\n"
+        "Si deseas agregar una carga individualmente, ingresa:\n"
+        "- El nombre de la carga\n"
+        "- Su potencia en watts\n"
+        "- Las **horas específicas** en las que está encendida\n"
+        "**Importante:** La selección de horas debe hacerse **una por una**. No se permiten rangos de horas.\n\n"
+    )
 
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -263,7 +274,11 @@ with tab1:
 
     # ======== TABLA EDITABLE ========
     st.markdown("### 🧾 Vista previa de los datos cargados o ingresados")
-    st.caption("Puedes editar directamente cualquier celda o eliminar filas según sea necesario.")
+
+    st.info("###### 🔍 Representación de horarios\n"
+        "- **1 →** la carga está activa en esa hora\n"
+        "- **0 →** la carga no está activa\n\n"
+    )
 
     # Almacenamos el DataFrame original para detectar eliminaciones/ediciones
     df_original = st.session_state["tabla_datos"].copy()
@@ -315,9 +330,22 @@ with tab1:
             use_container_width=True
         )
 
+    st.info(
+        "En la tabla de vista previa puedes:\n"
+        "- Editar valores directamente\n"
+        "- Eliminar cargas\n"
+        "- Modificar horas activas\n"
+        "- Aunque es posible agregar datos manualmente desde esta vista, **no es la forma más eficiente**.\n\n"
+    )
+
 # ======== VALIDACIÓN ========
     st.markdown("---")
     st.subheader("🔍 Validación de Datos")
+
+    st.info(
+        "- Cuando termines de cargar o editar tus datos, debes presionar el botón **Validar y Guardar Datos** para continuar al análisis.\n"
+        "- **Cada vez que hagas una nueva modificación**, ya sea subiendo un archivo, agregando una carga o editando la tabla, **debes volver a validar y guardar** para que los cambios se reflejen correctamente en la siguiente pestaña."
+    )
 
     def validar_datos(df):
         errores = []
@@ -1219,5 +1247,4 @@ with tab2:
         st.markdown("---")
 
         # 5) Botón para imprimir (FUERA del área)
-
         render_print_button("📄 Imprimir / Descargar PDF", delay_ms=800)
